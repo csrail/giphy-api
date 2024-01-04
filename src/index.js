@@ -8,28 +8,22 @@
     document.body.append(imageElement);
     document.body.append(hintElement);
 
-    function searchGiphy(keyword) {
+    async function searchGiphy(keyword) {
         const apiCall = "https://api.giphy.com/v1/gifs/translate";
         const url = `${apiCall}?api_key=${unsecureGiphyApiKey}&s=${keyword}`;
         // const url = `${apiCall}?api_key=24&s=${keyword}`;
-        fetch(url, { mode: "cors" })
-            .then((response) => {
-                const theResponse = response;
-                console.log(theResponse);
-                return theResponse.json();
-            })
-            .then((response) => {
-                console.log(response);
-                return imageElement.setAttribute(
-                    "src",
-                    response.data.images.fixed_height.url,
-                );
-            })
-            .catch((response) => {
-                hintElement.textContent =
-                    "Something went wrong.  Check the format of your API call or change your search terms.";
-                console.log(response);
-            });
+        try {
+            const fetchResponse = await fetch(url, { mode: "cors" });
+            const data = await fetchResponse.json();
+            return imageElement.setAttribute(
+                "src",
+                data.data.images.fixed_height.url,
+            );
+        } catch (error) {
+            hintElement.textContent =
+                "Something went wrong.  Check the format of your API call or change your search terms.";
+            return console.log(error);
+        }
     }
 
     const formElement = document.createElement("form");
@@ -41,7 +35,7 @@
 
     formElement.addEventListener("submit", (event) => {
         event.preventDefault();
-        searchGiphy(inputSearchElement.value);
+        return searchGiphy(inputSearchElement.value);
     });
 
     formElement.append(inputSearchElement);
@@ -59,7 +53,6 @@
         .catch((response) => {
             console.log("Catch", response);
         });
-
 
     return {};
 })();
